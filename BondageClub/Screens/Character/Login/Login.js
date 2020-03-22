@@ -4,8 +4,10 @@ var LoginMessage = "";
 var LoginCredits = null;
 var LoginCreditsPosition = 0;
 var LoginThankYou = "";
-var LoginThankYouList = ["Alvin", "Ayezona", "BlueEyedCat", "Bryce", "Christian", "Dan", "Desch", "Dini", "DonOlaf", "Escurse", "Greendragon", "John", "Kitten", "Laioken", "Lennart", "Michal", "Mindtie", "Misa",
-						 "Nera", "Nick", "Overlord", "Rashiash", "Robin", "Ryner", "Samuel", "Setsu", "Shadow", "Simeon", "SirCody", "Sky", "Terry", "William", "Winterisbest", "Xepherio"];
+var LoginThankYouList = ["Alvin", "Ayezona", "BlueEyedCat", "BlueWiner", "Bryce", "Christian", "Dan", "Desch", "Dini", "DonOlaf",
+						 "Escurse", "Fluffythewhat", "Greendragon", "John", "Kitten", "Laioken", "Lennart", "Michal", "Mindtie", "Misa",
+						 "MuchyCat", "Nera", "Nick", "Overlord", "Rashiash", "Robin", "Ryner", "Samuel", "Setsu", "Shadow",
+						 "Simeon", "SirCody", "Sky", "Terry", "Thomas", "William", "Winterisbest", "Xepherio"];
 var LoginThankYouNext = 0;
 //var LoginLastCT = 0;
 
@@ -71,6 +73,7 @@ function LoginLoad() {
 	CharacterLoadCSVDialog(Player);
 	LoginMessage = "";
 	if (LoginCredits == null) CommonReadCSV("LoginCredits", CurrentModule, CurrentScreen, "GameCredits");
+	ActivityDictionaryLoad();
 	ElementCreateInput("InputName", "text", "", "20");
 	ElementCreateInput("InputPassword", "password", "", "20");
 
@@ -182,6 +185,25 @@ function LoginResponse(C) {
 
 	// If the return package contains a name and a account name
 	if (typeof C === "object") {
+
+		// In relog mode, we jump back to the previous screen, keeping the current game flow
+		if (RelogData != null) {
+			LoginMessage = "";
+			ElementRemove("InputPassword");
+			Player.OnlineID = C.ID.toString();
+			CurrentModule = RelogData.Module;
+			CurrentScreen = RelogData.Screen;
+			CurrentCharacter = RelogData.Character;
+			TextLoad();
+			if ((ChatRoomData != null) && (ChatRoomData.Name != null) && (ChatRoomData.Name != "") && (RelogChatLog != null)) {
+				CommonSetScreen("Online", "ChatSearch");
+				ChatRoomPlayerCanJoin = true;
+				ServerSend("ChatRoomJoin", { Name: ChatRoomData.Name });
+			}
+			return;
+		}
+
+		// In regular mode, we set the account properties for a new club session
 		if ((C.Name != null) && (C.AccountName != null)) {
 
 			// Make sure we have values
@@ -200,6 +222,7 @@ function LoginResponse(C) {
 			Player.Description = C.Description;
 			Player.Creation = C.Creation;
 			Player.Wardrobe = C.Wardrobe;
+			WardrobeFixLength();
 			Player.OnlineID = C.ID.toString();
 			Player.MemberNumber = C.MemberNumber;
 			Player.BlockItems = ((C.BlockItems == null) || !Array.isArray(C.BlockItems)) ? [] : C.BlockItems;
@@ -223,11 +246,11 @@ function LoginResponse(C) {
 			Player.VisualSettings = C.VisualSettings;
 			Player.AudioSettings = C.AudioSettings;
 			Player.GameplaySettings = C.GameplaySettings;
-			Player.WhiteList = C.WhiteList;
-			Player.BlackList = C.BlackList;
-			Player.FriendList = C.FriendList;
-
-			PreferenceInit(Player);
+			Player.ArousalSettings = C.ArousalSettings;
+			Player.WhiteList = ((C.WhiteList == null) || !Array.isArray(C.WhiteList)) ? [] : C.WhiteList;
+			Player.BlackList = ((C.BlackList == null) || !Array.isArray(C.BlackList)) ? [] : C.BlackList;
+			Player.FriendList = ((C.FriendList == null) || !Array.isArray(C.FriendList)) ? [] : C.FriendList;
+			Player.GhostList = ((C.GhostList == null) || !Array.isArray(C.GhostList)) ? [] : C.GhostList;
 
 			// Loads the player character model and data
 			Player.Appearance = ServerAppearanceLoadFromBundle(Player, C.AssetFamily, C.Appearance);
@@ -235,6 +258,13 @@ function LoginResponse(C) {
 			LogLoad(C.Log);
 			ReputationLoad(C.Reputation);
 			SkillLoad(C.Skill);
+
+			// Calls the preference init to make sure the preferences are loaded correctly
+			PreferenceInit(Player);
+			ActivitySetArousal(Player, 0);
+			ActivityTimerProgress(Player, 0);
+
+			// Loads the dialog and removes the login controls
 			CharacterLoadCSVDialog(Player);
 			PrivateCharacterMax = 4 + (LogQuery("Expansion", "PrivateRoom") ? 4 : 0) + (LogQuery("SecondExpansion", "PrivateRoom") ? 4 : 0);
 			CharacterRefresh(Player, false);
@@ -340,9 +370,7 @@ function LoginClick() {
 
 // When the user press "enter" we try to login
 function LoginKeyDown() {
-	if (KeyPress == 13) {
-		LoginDoLogin();
-	}
+	if (KeyPress == 13) LoginDoLogin();
 }
 
 // If we must try to login (make sure we don't send the login query twice)
@@ -354,8 +382,6 @@ function LoginDoLogin() {
 		if (Name.match(letters) && Password.match(letters) && (Name.length > 0) && (Name.length <= 20) && (Password.length > 0) && (Password.length <= 20)) {
 			LoginMessage = TextGet("ValidatingNamePassword");
 			ServerSend("AccountLogin", { AccountName: Name, Password: Password });
-		} else {
-			LoginMessage = TextGet("InvalidNamePassword");
-		}
+		} else LoginMessage = TextGet("InvalidNamePassword");
 	}
 }
