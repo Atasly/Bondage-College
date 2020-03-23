@@ -216,8 +216,10 @@ ServerMessageOwnerRuleChangeBlock,,,Your owner has blocked your wardrobe access.
 ServerMessageOwnerRuleWhisperAllow,,,Your owner is now allowing you to whisper to other members when she's there.
 ServerMessageOwnerRuleWhisperBlock,,,Your owner is now preventing you from whispering to other members when she's there.
 ServerMessageOwnerRuleKeyAllow,,,Your owner is now allowing you to have keys.  You can buy keys from the club shop.
+ServerMessageOwnerRuleKeyAllowLovers,,,Your owner is now allowing your lover to unlock owners locks on you.
 ServerMessageOwnerRuleKeyConfiscate,,,Your owner has confiscated your keys.  All your regular keys are lost.
 ServerMessageOwnerRuleKeyBlock,,,Your owner is now preventing you from getting new keys.  The club shop will not sell keys to you anymore.
+ServerMessageOwnerRuleKeyBlockLovers,,,Your owner is now preventing your lover to unlock owners locks on you.
 ServerMessageOwnerRuleRemoteAllow,,,Your owner is now allowing you to have remotes.  You can buy remotes from the club shop.
 ServerMessageOwnerRuleRemoteAllowSelf,,,Your owner is now allowing you to use remotes on yourself.
 ServerMessageOwnerRuleRemoteConfiscate,,,Your owner has confiscated your remotes.  All your remotes are lost.

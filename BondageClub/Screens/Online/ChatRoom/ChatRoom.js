@@ -903,8 +903,10 @@ function ChatRoomSetRule(data) {
 
 		// Key rules
 		if (data.Content == "OwnerRuleKeyAllow") LogDelete("BlockKey", "OwnerRule");
+		if (data.Content == "OwnerRuleKeyAllowLovers") LogDelete("BlockKeyLovers", "OwnerRule");
 		if (data.Content == "OwnerRuleKeyConfiscate") InventoryConfiscateKey();
 		if (data.Content == "OwnerRuleKeyBlock") LogAdd("BlockKey", "OwnerRule");
+		if (data.Content == "OwnerRuleKeyBlockLovers") LogAdd("BlockKeyLovers", "OwnerRule");
 
 		// Remote rules
 		if (data.Content == "OwnerRuleRemoteAllow") LogDelete("BlockRemote", "OwnerRule");
